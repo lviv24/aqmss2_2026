@@ -1,3 +1,3 @@
 # aqmss2_2026
-##Lesley Viveros
+Lesley Viveros
 Assignments for AQMSS II 
