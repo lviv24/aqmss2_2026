@@ -126,7 +126,7 @@ coef_plot <- modelplot(
 
 # c) save both outputs 
 ggsave("reading_coefficients.png", plot = coef_plot)
-ggsave() 
+
 
 # The interaction model was saved in part a of this section.
 
