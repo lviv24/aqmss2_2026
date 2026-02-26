@@ -38,7 +38,7 @@ ggplot(df, aes(x = undp_gdp, y = ti_cpi)) +
   geom_point() +
   geom_smooth(method = "lm") +
   labs(x = "GDP per capita (PPP)", y = "Corruption Perceptions Index")
-
+ggsave("assignment4/scatter1_2.png" )
 # b) describe pattern
 #!!!!!!!!!!!!!!!!!!
 
