@@ -1,4 +1,0 @@
-library(dplyr)
-library(broom)
-library(ggplot2)
-qog <- read.csv("https://www.qogdata.pol.gu.se/data/qog_std_cs_jan26.csv")
