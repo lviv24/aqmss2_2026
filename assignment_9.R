@@ -1,0 +1,483 @@
+install.packages("carData")
+install.packages("pscl")
+install.packages("AER")
+library(carData)
+library(MASS)
+library(nnet)
+library(pscl)
+library(AER)
+library(marginaleffects)
+library(ggplot2)
+data(BEPS)
+
+
+# 1.1 Ordered Logit: Perceptions of national economy ----------------------
+
+# a) Explore the economic.cond.national variable and convert it to an ordered factor:
+table(BEPS$economic.cond.national)
+BEPS$econ_ord = factor(BEPS$economic.cond.national, ordered = TRUE)
+#   1   2   3   4   5 
+#   37 257 607 542  8
+
+# The most common category is category 3 (stayed about the same), with categories 
+# 4 and 2 following behind. Few respondents chose extremes (1-Much worse,5-much better).
+# OLS treats numeric values 1-5 as equally spread it implies the difference between 
+# got much worse and got a little worse is the same as the difference between stayed 
+# the same and got a little better. Ordered logit avoids this assumption bu estimating
+# threshold parameters that let data determine spacing of latent scale. 
+
+# b)Fit an ordered logit model predicting econ ord from age, gender, Europe, and political.knowledge:
+  m_ologit = polr(econ_ord ~ age + gender + Europe + political.knowledge,
+                                     data = BEPS, Hess = TRUE)
+  summary(m_ologit)
+
+#Coefficients:
+#  Value Std. Error t value
+#age                  0.003999   0.003044   1.314
+#gendermale           0.192062   0.096475   1.991
+#Europe              -0.122693   0.014978  -8.192
+#political.knowledge -0.120719   0.045154  -2.674
+
+#Intercepts:
+#  Value    Std. Error t value 
+#1|2  -4.4796   0.2727   -16.4247
+#2|3  -2.1843   0.2225    -9.8153
+#3|4  -0.3183   0.2141    -1.4867
+#4|5   2.2397   0.2348     9.5391
+
+#Residual Deviance: 3833.171 
+#AIC: 3849.171 
+
+# report the raw coefficient on Europe and its sign. Based on the sign convention, 
+# does higher support for European integration predict more optimistic views of 
+# the national economy?
+
+# The raw coefficient on EUrope is -0.122693. Based on sign convention the negative 
+# value implies a positive association (after sign reversal). This means that 
+# respondents with stronger pre-EU attitudes tend to percieve national econ conditions 
+# as having improved. 
+
+# c) Compute average marginal effects (for reliable interpretation of magnitudes)
+# across all response categories:
+avg_slopes(m_ologit)
+
+# interpret the AME for Europe on the probability of each category. Does a one-unit increase in
+#pro-Europe attitude increase or decrease the probability of perceiving the economy as
+#improved (category 4 or 5)? By approximately how much on average across respondents?
+#Note that the AMEs across all five categories for any given predictor must sum
+#to zero — use this as a sanity check.
+
+# The average marginal effects show the average change in probability of each
+# response category associated with a one-unit increase in each predictor. The AMEs in 
+# lower categories (categories 1 and 2) are negative, while higher categories (4-5) are 
+# postive. This is consistent with positive associations between pro EU setniment and 
+# more optimistic economic assessments. 
+
+
+# d) Compute predicted probabilities for the five response categories at the mean of all
+# covariates, separately for male and female respondents:
+  predictions(m_ologit, newdata = datagrid(gender = c("female", "male")))
+#In a comment, compare the predicted probabilities for the most pessimistic category
+#(1 = got much worse) and the most optimistic category (5 = got much better) for each
+#gender. Are there notable differences by gender? What does this suggest about gender
+#gaps in economic perceptions?
+  
+# The predicted probability for category 1 and category 5 aren't very different from each other, 
+# this can be due to gender notbeing a strong predictor or driver of economic opinions 
+# when compared to other variables in the model.  
+  
+
+# 1.2 Multinomial logit: vote choice --------------------------------------
+
+# a) Set Conservative as the reference category and fit a multinomial logit predicting vote
+#  from economic assessments and leader evaluations:
+ library(nnet)
+   BEPS$vote = relevel(BEPS$vote, ref = "Conservative")
+  m_mlogit = multinom(vote ~ economic.cond.national + Blair + Hague +
+                        Kennedy + Europe, data = BEPS, trace = FALSE)
+  summary(m_mlogit)
+#     Kennedy + Europe, data = BEPS, trace = FALSE)
+  
+# Coefficients:
+#    (Intercept) economic.cond.national     Blair      Hague
+#  Labour            -0.7685077              0.6228794 0.8157754 -0.8805887
+#  Liberal Democrat   0.2627294              0.1840322 0.2847314 -0.8228982
+# Kennedy     Europe
+#  Labour           0.2396046 -0.2102419
+#  Liberal Democrat 0.6763287 -0.2107956
+#  
+#  Std. Errors:
+#    (Intercept) economic.cond.national      Blair      Hague
+#  Labour             0.4973142             0.09708813 0.07381306 0.07112439
+#  Liberal Democrat   0.5276718             0.10184961 0.07486476 0.07588714
+#  Kennedy     Europe
+#  Labour           0.07532422 0.02688425
+#  Liberal Democrat 0.08381384 0.02849781
+  
+#  Residual Deviance: 2364.339 
+#  AIC: 2388.339 
+  
+# Describe the direction of the Blair coefficient in the Labour vs. Conservative 
+# equation. What does a positive coefficient on Blair (feelings toward Tony Blair) 
+# in the Labour equation imply about the relationship between Blair approval and 
+# the likelihood of voting Labour relative to Conservative?
+  
+# The model produces two sets of log-odds coefficients: labor vs conservative and
+# liberal democrat vs conservative. Conservative is the reference category, so
+# each row is a comparison against conservative. The coefficient on Blair in labor 
+# vs conservative is very positive, higher approval of Blair is associated with greater 
+# log odds of voting labor rather than conservative. In comparison the Blair 
+# coefficient in liberal democrat vs conservative is smaller since Blair approval 
+# doesn't differentiate strongly between liberal democrat and conservative voters. 
+  
+# b) Compute average marginal effects across all predictors and outcome categories:
+  avg_slopes(m_mlogit)
+# The AME of Blair on the probability of voting labor is  0.1156, this value is
+# positive and substantial. The value indicates that a one-unit increase in Blair
+# approval is associated with a meaningful increase in the average probability 
+# of voting labor while holding all other variables constant. This reflects the 
+# candidates extreme popularity at the time. 
+  
+# c) Independence of Irrelevant Alternatives (IIA): the odds ratio between any 
+# two alternatives is unaffected by the presence or absence of other alternatives. 
+
+# The odds ratio between any two alternatives (labor vs. conservative) is 
+# unaffected by the presence of a third party of the third alternative 
+# (liberal democrats). IIA is a moderate concern for British party choice, labor 
+# and the liberal democrats are both center left parties they share ideological 
+# space, so voters may treat them as partial substitutes in a way IIA cannot 
+# accommodate. Conservatives occupy an ideologically distinct position so the 3 
+# party system is not as doomed as the 2 bus example due to the variability in 
+# options that voters have. IIA is more of a concern for Labor vs liberal 
+# democrat distinction. 
+  
+
+# 1.3 Poisson regression: publication counts ------------------------------
+  library(pscl)
+  library(AER)
+  library(MASS)
+  library(marginaleffects)
+  data(bioChemists)
+  
+# a) Explore the outcome variable art:
+  summary(bioChemists$art)
+  var(bioChemists$art)
+  pdf("art_histogram.pdf", width = 6, height = 4)
+  hist(bioChemists$art, breaks = 20, main = "Distribution of articles",
+       xlab = "Number of articles", col = "gray80")
+  dev.off()
+
+# >   summary(bioChemists$art)
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  0.000   0.000   1.000   1.693   2.000  19.000 
+#  >   var(bioChemists$art)
+#  [1] 3.709742
+  
+# Variance of articles published in last 3 years of PhD is [1] 3.709742
+# Mean of articles published in last 3 years of PhD is 1.693  
+# The variance exceeds the mean, therefore there is overdispersion and this
+# violates the Poisson assumption that mean should equal variance. 
+
+# b) Fit a Poisson regression of art on all predictors:
+m_pois = glm(art ~ fem + mar + kid5 + phd + ment,
+               data = bioChemists, family = poisson)
+summary(m_pois)
+
+#Coefficients:
+#               Estimate Std. Error z value Pr(>|z|)    
+#  (Intercept)  0.304617   0.102981   2.958   0.0031 ** 
+#  femWomen    -0.224594   0.054613  -4.112 3.92e-05 ***
+#  marMarried   0.155243   0.061374   2.529   0.0114 *  
+#  kid5        -0.184883   0.040127  -4.607 4.08e-06 ***
+#  phd          0.012823   0.026397   0.486   0.6271    
+#  ment         0.025543   0.002006  12.733  < 2e-16 ***
+
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#(Dispersion parameter for poisson family taken to be 1)
+#Null deviance: 1817.4  on 914  degrees of freedom
+#Residual deviance: 1634.4  on 909  degrees of freedom
+#AIC: 3314.1
+#Number of Fisher Scoring iterations: 5
+
+exp(coef(m_pois)["ment"])
+
+# The coefficient on ment is 0.025543 and after exponentiation it the coefficient 
+# on ment 1.025872, this is the incidence rate ratio (IRR). This means that each
+# additional article published by the mentor is associated with a multiplicative
+# increase in expected student articles by that factor, holding all else constant. 
+# The effect is modest but positive, suggesting that more productive mentors 
+# slightly boost student output. The residual deviance (1634.4)is substantially larger 
+# than the residual degrees of freedom (909). This is another way to diagnose 
+# overdispersion. 
+
+# c) Test for overdispersion formally 
+dispersiontest(m_pois)
+#Overdispersion test
+#data:  m_pois
+#z = 5.7825, p-value = 3.681e-09
+#alternative hypothesis: true dispersion is greater than 1
+#sample estimates:
+#  dispersion 
+#1.82454
+
+# The estimated dispersion parameter is 1.82454 and the p value is 3.681e-09.
+# Since the p-value is < 0.001 the dispersion test strongly rejects the null 
+# hypothesis of equidispersion. Since the dispersion parameter is over 1, the 
+# variance in art substantially exceeds its mean. This indicates that the Poisson
+# standard errors are too small, the model underestimates uncertainty, inflates
+# test statistics and produces p-values that are misleadingly small. A model that
+# explicitly accounts for overdispersion is needed such as the negative binomial. 
+
+
+# 1.4 Negative binomial regression  ---------------------------------------
+# The negative binomial (NB) model generalizes Poisson by adding a dispersion 
+# parameter θ that allows the variance to exceed the mean: Var(Yi) = μi + μ2i
+# /θ. When θ → ∞, the NB reduces to Poisson. A small estimated θ indicates severe 
+# overdispersion; a large θ indicates the extra dispersion is modest.
+
+# a) Fit the negative binomial model with the same formula:
+m_nb = glm.nb(art ~ fem + mar + kid5 + phd + ment,
+              data = bioChemists)
+#summary(m_nb)
+#Coefficients:
+#                Estimate Std. Error z value Pr(>|z|)    
+#  (Intercept)  0.256144   0.137348   1.865 0.062191 .  
+#  femWomen    -0.216418   0.072636  -2.979 0.002887 ** 
+#  marMarried   0.150489   0.082097   1.833 0.066791 .  
+#  kid5        -0.176415   0.052813  -3.340 0.000837 ***
+#  phd          0.015271   0.035873   0.426 0.670326    
+#  ment         0.029082   0.003214   9.048  < 2e-16 ***
+
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#(Dispersion parameter for Negative Binomial(2.2644) family taken to be 1)
+#Null deviance: 1109.0  on 914  degrees of freedom
+#Residual deviance: 1004.3  on 909  degrees of freedom
+#AIC: 3135.9
+#Number of Fisher Scoring iterations: 1
+#Theta:  2.264 
+#Std. Err.:  0.271 
+#2 x log-likelihood:  -3121.917 
+ 
+# The ment coefficient is 0.029082, while the coefficient on ment from the 
+# Poisson model was 0.025543, it has not changed substantially. This indicates
+# that the point estimate is reasonably stable, the key difference is the
+# standard error of each model. The negative binomial produces larger uncertainty
+# estimates. The estimated overdispersion parameter (theta) quantifies how much
+# the variance exceeds the Poisson prediction, a smaller theta means more severe 
+# overdispersion. Theta is moderate at 2.264 signalling a meaningful but not 
+# extreme extra-Poisson variation. 
+
+# b) Compare model fit using AIC- Akaike Information Criterion, evaluates 
+# quality of statistical models by acting as an estimator of prediction error,
+# balancing model fit against complexity- with lower values indicating a better, 
+# more predictive model. 
+
+AIC(m_pois, m_nb)
+#   df      AIC
+# m_pois  6 3314.113
+# m_nb    7 3135.917
+
+# The negative binomial model has a lower Akaike Information Criterion (AIC), 
+# despite the NB model having an additional parameter (theta). Under AIC the 
+# improvement in fit compensates for the added complexity. This confirms that 
+# overdispersion is a feature of the data not noise. It also confirms that the 
+# negative binomial is the best model for the article publication counts. 
+
+# c) Compute predicted article counts for male vs. female researchers, holding 
+# all other variables at their sample means:
+
+predictions (m_nb, newdata = datagrid(fem = c("Men", "Women")))
+#           fem Estimate Pr(>|z|)    S 2.5 % 97.5 %
+#Men       2.05   <0.001 93.7  1.80   2.32
+#Women     1.65   <0.001 42.2  1.44   1.88            
+
+# The predicted number of articles for men is 2.05 with confidence intervals 
+# [1.80, 2.32]. For females it is 1.65 with confidence intervals [1.44, 1.88]. 
+# Although the confidence intervals slightly overlap, the difference is 
+# statistically significant, which is indicated by the significant negative 
+# coefficient for women with a p value < 0.001. Female researchers publish fewer 
+# articles than men, holding other variables constant. 
+
+# d) Poisson regression is not adequate for the dataset, a negative binomial 
+# regression would work better. The NB model adds a dispersion parameter to 
+# accommodate extra variation due to overdispersion, as well as achieving a much 
+# lower AIC value (making it the better option between the 2 models), and produces 
+# more reliable/wider standard errors. Mentors productivity has a positive and 
+# significant effect, the incidence rate ratio for ment is 1.026 suggesting that
+# more productive mentors boost student output. Gedner and number of young 
+# children are negative and significant, women publish fewer articles and each 
+# additional child reduces output further. All in all, results point to early-
+# career productivity being shaped by mentor environment, gender, and family 
+# make-up. The results make sense given literature on outcomes in STEM field 
+# publication rates. 
+
+###############################################################################
+# Part 2: Take-Home, Survival Analysis ------------------------------------
+###############################################################################
+
+install.packages("survival")
+library(survival)
+
+lung <- survival::lung
+head(lung)
+exists("lung", where = asNamespace("survival"))
+
+# 2.1 Kaplan-Meier survival curves ----------------------------------------
+
+# re-code status variable 
+lung$dead = lung$status - 1
+table(lung$status, lung$dead)
+# a) Explore data
+View(lung)
+lung
+#    0   1
+#1  63   0
+#2   0 165
+
+# There are 228 observations, with 165 cases of deaths and 63 censored cases. 
+# The proportion of censored cases is 63/228 ~ 0.276, so only about a 27.6% of 
+# censoring. For censored patients the survival time is unknown, we only know 
+# they survived as long as their observed follow up time. 
+
+# b) Estimate the overall Kaplan-Meier survival curve using survfit() with 
+#formula Surv(time,dead) ~ 1. The summary() output shows, at each event time, 
+#the number at risk, the number of events, the estimated survival probability, 
+#and the confidence interval. In a comment, report the estimated median survival 
+#time. What does this number mean in plain language?
+
+fit <- survfit(Surv(time, dead) ~ 1, data = lung)
+summary(fit)
+summary(fit)$table["median"]
+# median 
+# 310
+
+# The estimated median survival time is 310 days. This number means that the median 
+# amount of days that are noted as survival times for lung cancer patients is 
+# 310 days. 
+
+# c) Estimate separate Kaplan-Meier curves by sex using survfit() and plot them with
+#ggplot2. Hint: use broom::tidy() to convert the survfit object to a data frame, then
+#plot with geom step() and geom ribbon() for confidence intervals. Save the plot as a
+#PDF. Also run a log-rank test using survdiff(). In a comment, describe what you see:
+#which group survives longer? Does the confidence interval for the two groups overlap?
+#Report the log-rank test p-value and explain what it tests (whether the survival
+# curves are statistically different).
+
+fit_sex <- survfit(Surv(time, dead) ~ sex, data = lung)
+# Convert to data frame for ggplot 
+tidy_fit <- broom::tidy(fit_sex)
+p <- ggplot(tidy_fit, aes(x = time, y = estimate, color = strata, fill = strata)) +
+  geom_step() +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2, color = NA) +
+  labs(x = "Time (days)", y = "Survival probability",
+       title = "Kaplan-Meier Survival Curves by Sex") +
+  theme_minimal()
+
+p
+
+ggsave("km_sex_plot.pdf", plot = p)
+
+logrank <- survdiff(Surv(time, dead) ~ sex, data = lung)
+logrank
+# N Observed Expected (O-E)^2/E (O-E)^2/V
+#sex=1 138      112     91.6      4.55      10.3
+#sex=2  90       53     73.4      5.68      10.3
+#Chisq= 10.3  on 1 degrees of freedom, p= 0.001 
+
+p_value <- 1 - pchisq(logrank$chisq, df = 1)
+p_value
+# [1] 0.001311165
+
+# Females have a higher survival probability, meaning females tend to survive 
+# longer over the follow-up period. The confidence intervals overlap between the
+# 750-1000 days of the time axis, indicating some uncertainty in the difference 
+# at those time points. 
+# The log rank p-value is 0.00131116, this is statistically significant. The p-value 
+# tells us if there is a statistical difference between survival times between the 
+# 2 groups. Since the p value is significant the null hypothesis can be rejected, 
+# males and females have different survival rates.
+# Even if curves overlap, one group can still have significantly better survival 
+# overall, this is shown by the p-value and confidence intervals in the plot. 
+
+
+# 2.2 Cox proportional hazards model  -------------------------------------
+#a) Fit a Cox proportional hazards model predicting survival from age, sex, and ph.ecog
+#using coxph() from survival. The output shows both raw coefficients (log-hazard 
+#scale) and exponentiated coefficients (hazard ratios). In a comment, report and 
+#interpret the hazard ratio for sex. Recall from class: a hazard ratio below 1 
+#means lower hazard (longer survival), above 1 means higher hazard (shorter survival). 
+#What does the hazard ratio for sex tell us about survival differences between men
+#and women? Is it statistically significant?
+
+#m_cox <- coxph(Surv(time, dead) ~ age + sex + ph.ecog, data = lung)
+#summary(m_cox)  
+#n= 227, number of events= 164 
+#(1 observation deleted due to missingness)
+#            coef exp(coef)  se(coef)      z Pr(>|z|)    
+#age      0.011067  1.011128  0.009267  1.194 0.232416    
+#sex     -0.552612  0.575445  0.167739 -3.294 0.000986 ***
+#ph.ecog  0.463728  1.589991  0.113577  4.083 4.45e-05 ***
+
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#         exp(coef) exp(-coef) lower .95 upper .95
+#age        1.0111     0.9890    0.9929    1.0297
+#sex        0.5754     1.7378    0.4142    0.7994
+#ph.ecog    1.5900     0.6289    1.2727    1.9864
+
+#Concordance= 0.637  (se = 0.025 )
+#Likelihood ratio test= 30.5  on 3 df,   p=1e-06
+#Wald test            = 29.93  on 3 df,   p=1e-06
+#Score (logrank) test = 30.5  on 3 df,   p=1e-06
+
+# The exponentiated coefficient for sex gives the hazard ratio for sex 
+# which is 0.575, this indicates that the change in hazard when
+# moving from male to female decreases. Females have a 42-43%(1-0.575)lower risk 
+# of death than males while holding age and performance constant. The p-value is 
+# 0.000986 (<0.001), it is highly statistically significant. The 95% confidence 
+# interval range of [0.4142, 0.7994] lies entirely below 1, providing strong 
+# evidence that females have better survival outcomes than males. 
+
+#b) Interpret the hazard ratio for ph.ecog. In a comment, explain what a one-unit 
+#increase in ECOG performance score (i.e., moving toward worse physical functioning) 
+#does to the hazard of death. Express this as a percentage change 
+#(e.g., “X% higher/lower hazard”).
+
+# The hazard ratio for ph.ecog is 1.589991. A one-unit increase in ECOG performance
+# score is associated with a 59% increase in the hazard of death. Since the hazard
+# ratio is greater than 1 the effect increases risk, the calculation is 
+#(1.59-1)x100 ~ 59%. Since higher ECOG scores indicate worse physical functioning, 
+# moving to a worse health state substantially increases mortality risk. 
+
+
+#c) The Cox model assumes proportional hazards: the effect of each covariate is 
+#constant over time. Test this assumption using cox.zph(). In a comment, report 
+#the p-value for each covariate and the global test. A significant p-value suggests 
+#the proportional hazards assumption is violated for that variable. Do any variables 
+#violate the assumption? If so, what would this mean in substantive terms 
+#(e.g., the effect of age changes over the course of the disease)?
+
+cox.zph(m_cox)
+#        chisq df    p
+#age     0.188  1 0.66
+#sex     2.305  1 0.13
+#ph.ecog 2.054  1 0.15
+#GLOBAL  4.464  3 0.22
+
+#The p-values for age, sex, ph.ecog, and global are 0.66, 0.13, 0.15, and 0.22 
+#respectively. None of the covariates are statistically significant as all of 
+#the p-values are p > 0.05. This indicates that there is no evidence of violation
+#of the proportional hazards assumption. The effects of all the covariates on 
+#the hazard of death can be considered constant over time. This means that the 
+#impact of each variable (survival advantage for females, increased risk 
+#associated with worse performance status) remains stable throughout the follow 
+#up periods, rather than changing as time progresses. 
+
+#d) The Kaplan-Meier analysis suggests survival differences by sex with females
+#exhibiting higher survival probabilities over time. In the Cox proporional 
+#hazard model sex and ph.ecog are significant predictors. Being female decreases 
+#risk of death- this is a negative relationship, and an increase in ECOG 
+#performance creates an increase in risk of death- this is a positive 
+#relationship. The cox.zph() test shows there is no violation of the proportional 
+#hazard assumption. All in all, this suggests that gender and baseline health 
+#status are key predictors of lung cancer survival. 
