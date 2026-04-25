@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float} % <-- add this
+
+\title{Assignment 10}
+\author{Lesley Viveros}
+\date{April 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This document presents an empirical analysis of the relationship between GDP per capita and corruption using a reproducible R workflow.
+
+\section{Regression Results}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+ & Model 1 & Model 2 (controls) \\
+\hline
+(Intercept) & 2.502 & 2.502 \\
+            & (0.124) & (0.124) \\
+\hline
+undp\_gdp   & 0.000 &  \\
+            & (0.000) &  \\
+\hline
+log(undp\_gdp) &  & 1.430 \\
+               &  & (0.090) \\
+\hline
+Num.Obs. & 170 & 170 \\
+R2       & 0.673 & 0.603 \\
+Adj. R2  & 0.671 & 0.601 \\
+\hline
+\end{tabular}
+\caption{Regression results: CPI on GDP per capita}
+\end{table}
+
+\section{Figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/myplot.pdf}
+    \caption{Relationship between GDP per capita and corruption (CPI)}
+\end{figure}
+
+\section{Notes}
+
+The regression table and figure are automatically generated in R and imported into this document to ensure reproducibility.
+
+\end{document}
