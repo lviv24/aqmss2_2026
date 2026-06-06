@@ -1,0 +1,193 @@
+country,state_code,state,year,female_homicides
+Mexico,01,Aguascalientes,2018,6
+Mexico,01,Aguascalientes,2019,6
+Mexico,01,Aguascalientes,2020,7
+Mexico,01,Aguascalientes,2021,8
+Mexico,01,Aguascalientes,2022,6
+Mexico,01,Aguascalientes,2023,12
+Mexico,02,Baja California,2018,182
+Mexico,02,Baja California,2019,160
+Mexico,02,Baja California,2020,168
+Mexico,02,Baja California,2021,184
+Mexico,02,Baja California,2022,160
+Mexico,02,Baja California,2023,153
+Mexico,03,Baja California Sur,2018,18
+Mexico,03,Baja California Sur,2019,10
+Mexico,03,Baja California Sur,2020,4
+Mexico,03,Baja California Sur,2021,7
+Mexico,03,Baja California Sur,2022,8
+Mexico,03,Baja California Sur,2023,5
+Mexico,04,Campeche,2018,11
+Mexico,04,Campeche,2019,8
+Mexico,04,Campeche,2020,7
+Mexico,04,Campeche,2021,10
+Mexico,04,Campeche,2022,6
+Mexico,04,Campeche,2023,13
+Mexico,07,Chiapas,2018,27
+Mexico,07,Chiapas,2019,50
+Mexico,07,Chiapas,2020,36
+Mexico,07,Chiapas,2021,40
+Mexico,07,Chiapas,2022,46
+Mexico,07,Chiapas,2023,51
+Mexico,08,Chihuahua,2018,157
+Mexico,08,Chihuahua,2019,200
+Mexico,08,Chihuahua,2020,280
+Mexico,08,Chihuahua,2021,259
+Mexico,08,Chihuahua,2022,171
+Mexico,08,Chihuahua,2023,223
+Mexico,09,Ciudad de Mexico,2018,108
+Mexico,09,Ciudad de Mexico,2019,100
+Mexico,09,Ciudad de Mexico,2020,100
+Mexico,09,Ciudad de Mexico,2021,86
+Mexico,09,Ciudad de Mexico,2022,77
+Mexico,09,Ciudad de Mexico,2023,69
+Mexico,05,Coahuila,2018,18
+Mexico,05,Coahuila,2019,23
+Mexico,05,Coahuila,2020,22
+Mexico,05,Coahuila,2021,17
+Mexico,05,Coahuila,2022,11
+Mexico,05,Coahuila,2023,9
+Mexico,06,Colima,2018,62
+Mexico,06,Colima,2019,67
+Mexico,06,Colima,2020,70
+Mexico,06,Colima,2021,46
+Mexico,06,Colima,2022,83
+Mexico,06,Colima,2023,87
+Mexico,10,Durango,2018,14
+Mexico,10,Durango,2019,9
+Mexico,10,Durango,2020,13
+Mexico,10,Durango,2021,7
+Mexico,10,Durango,2022,22
+Mexico,10,Durango,2023,12
+Mexico,15,Estado de Mexico,2018,290
+Mexico,15,Estado de Mexico,2019,313
+Mexico,15,Estado de Mexico,2020,267
+Mexico,15,Estado de Mexico,2021,260
+Mexico,15,Estado de Mexico,2022,282
+Mexico,15,Estado de Mexico,2023,276
+Mexico,11,Guanajuato,2018,300
+Mexico,11,Guanajuato,2019,324
+Mexico,11,Guanajuato,2020,504
+Mexico,11,Guanajuato,2021,451
+Mexico,11,Guanajuato,2022,430
+Mexico,11,Guanajuato,2023,435
+Mexico,12,Guerrero,2018,173
+Mexico,12,Guerrero,2019,147
+Mexico,12,Guerrero,2020,116
+Mexico,12,Guerrero,2021,122
+Mexico,12,Guerrero,2022,109
+Mexico,12,Guerrero,2023,128
+Mexico,13,Hidalgo,2018,37
+Mexico,13,Hidalgo,2019,46
+Mexico,13,Hidalgo,2020,27
+Mexico,13,Hidalgo,2021,33
+Mexico,13,Hidalgo,2022,37
+Mexico,13,Hidalgo,2023,37
+Mexico,14,Jalisco,2018,178
+Mexico,14,Jalisco,2019,170
+Mexico,14,Jalisco,2020,172
+Mexico,14,Jalisco,2021,160
+Mexico,14,Jalisco,2022,127
+Mexico,14,Jalisco,2023,105
+Mexico,16,Michoacan,2018,132
+Mexico,16,Michoacan,2019,160
+Mexico,16,Michoacan,2020,196
+Mexico,16,Michoacan,2021,229
+Mexico,16,Michoacan,2022,211
+Mexico,16,Michoacan,2023,153
+Mexico,17,Morelos,2018,66
+Mexico,17,Morelos,2019,84
+Mexico,17,Morelos,2020,58
+Mexico,17,Morelos,2021,70
+Mexico,17,Morelos,2022,91
+Mexico,17,Morelos,2023,131
+Mexico,18,Nayarit,2018,25
+Mexico,18,Nayarit,2019,15
+Mexico,18,Nayarit,2020,13
+Mexico,18,Nayarit,2021,18
+Mexico,18,Nayarit,2022,12
+Mexico,18,Nayarit,2023,9
+Mexico,19,Nuevo Leon,2018,54
+Mexico,19,Nuevo Leon,2019,66
+Mexico,19,Nuevo Leon,2020,65
+Mexico,19,Nuevo Leon,2021,68
+Mexico,19,Nuevo Leon,2022,117
+Mexico,19,Nuevo Leon,2023,126
+Mexico,20,Oaxaca,2018,96
+Mexico,20,Oaxaca,2019,109
+Mexico,20,Oaxaca,2020,90
+Mexico,20,Oaxaca,2021,75
+Mexico,20,Oaxaca,2022,99
+Mexico,20,Oaxaca,2023,76
+Mexico,21,Puebla,2018,80
+Mexico,21,Puebla,2019,80
+Mexico,21,Puebla,2020,73
+Mexico,21,Puebla,2021,60
+Mexico,21,Puebla,2022,65
+Mexico,21,Puebla,2023,63
+Mexico,22,Queretaro,2018,22
+Mexico,22,Queretaro,2019,22
+Mexico,22,Queretaro,2020,22
+Mexico,22,Queretaro,2021,21
+Mexico,22,Queretaro,2022,17
+Mexico,22,Queretaro,2023,20
+Mexico,23,Quintana Roo,2018,60
+Mexico,23,Quintana Roo,2019,45
+Mexico,23,Quintana Roo,2020,46
+Mexico,23,Quintana Roo,2021,50
+Mexico,23,Quintana Roo,2022,45
+Mexico,23,Quintana Roo,2023,54
+Mexico,24,San Luis Potosi,2018,38
+Mexico,24,San Luis Potosi,2019,37
+Mexico,24,San Luis Potosi,2020,35
+Mexico,24,San Luis Potosi,2021,59
+Mexico,24,San Luis Potosi,2022,43
+Mexico,24,San Luis Potosi,2023,40
+Mexico,25,Sinaloa,2018,35
+Mexico,25,Sinaloa,2019,36
+Mexico,25,Sinaloa,2020,25
+Mexico,25,Sinaloa,2021,23
+Mexico,25,Sinaloa,2022,30
+Mexico,25,Sinaloa,2023,24
+Mexico,26,Sonora,2018,44
+Mexico,26,Sonora,2019,92
+Mexico,26,Sonora,2020,77
+Mexico,26,Sonora,2021,126
+Mexico,26,Sonora,2022,116
+Mexico,26,Sonora,2023,111
+Mexico,27,Tabasco,2018,27
+Mexico,27,Tabasco,2019,63
+Mexico,27,Tabasco,2020,43
+Mexico,27,Tabasco,2021,38
+Mexico,27,Tabasco,2022,31
+Mexico,27,Tabasco,2023,17
+Mexico,28,Tamaulipas,2018,80
+Mexico,28,Tamaulipas,2019,70
+Mexico,28,Tamaulipas,2020,48
+Mexico,28,Tamaulipas,2021,34
+Mexico,28,Tamaulipas,2022,34
+Mexico,28,Tamaulipas,2023,25
+Mexico,29,Tlaxcala,2018,11
+Mexico,29,Tlaxcala,2019,20
+Mexico,29,Tlaxcala,2020,11
+Mexico,29,Tlaxcala,2021,23
+Mexico,29,Tlaxcala,2022,7
+Mexico,29,Tlaxcala,2023,12
+Mexico,30,Veracruz,2018,99
+Mexico,30,Veracruz,2019,99
+Mexico,30,Veracruz,2020,109
+Mexico,30,Veracruz,2021,70
+Mexico,30,Veracruz,2022,73
+Mexico,30,Veracruz,2023,61
+Mexico,31,Yucatan,2018,7
+Mexico,31,Yucatan,2019,2
+Mexico,31,Yucatan,2020,10
+Mexico,31,Yucatan,2021,2
+Mexico,31,Yucatan,2022,1
+Mexico,31,Yucatan,2023,10
+Mexico,32,Zacatecas,2018,71
+Mexico,32,Zacatecas,2019,58
+Mexico,32,Zacatecas,2020,78
+Mexico,32,Zacatecas,2021,135
+Mexico,32,Zacatecas,2022,132
+Mexico,32,Zacatecas,2023,88
