@@ -1448,7 +1448,6 @@ summary(leg22_br$pct_women_legislature)
 
 # =============================================================================
 # LEGISLATURE FIXES
-# This script replaces three pieces of the original build:
 #   (A) Brazil: processes the 2014 TSE file and rebuilds the step function
 #       with institutionally correct term timing (elected Oct year X ->
 #       in office from Feb X+1).
@@ -1464,10 +1463,7 @@ summary(leg22_br$pct_women_legislature)
 #       (forward fill). Coahuila renewed in 2020 and 2023, so backward fill
 #       from 2022 is also correct for it.
 #
-# Run AFTER the original build script (it modifies leg20/leg22/leg23 and
-# leg18_br/leg22_br objects already in memory) and BEFORE the master
-# merge/regression script.
-# =============================================================================
+#===================================================
 
 library(dplyr)
 library(readr)
@@ -1529,7 +1525,7 @@ stopifnot(nrow(br_leg) == 27 * 6, sum(is.na(br_leg$pct_women_legislature)) == 0)
 cat("Brazil legislature step function complete: 162 state-years, no NAs.\n")
 
 # =============================================================================
-# (B) MEXICO: CIUDAD DE MEXICO PATCHES (ref-2022 and ref-2023 waves)
+# (B) MEXICO: CIUDAD DE MEXICO  (ref-2022 and ref-2023 waves)
 # =============================================================================
 
 # ref-2022: the simple cuadro returns NA for CDMX, but the party-breakdown
@@ -2091,7 +2087,7 @@ for (f in files) {
 }
 
 # -------------------------------------------------------
-# Combine, deduplicate, verify
+# Combine, verify
 # -------------------------------------------------------
 
 brazil_gdp_raw <- bind_rows(all_results) %>%
@@ -2118,7 +2114,6 @@ cat("States with suspicious YoY jumps:", nrow(suspicious), "\n")  # 0
 
 # -------------------------------------------------------
 # Build total population panel from brapop
-# (brapop must already be in your environment from earlier)
 # -------------------------------------------------------
 
 clean_brazil_states <- function(x) {
@@ -2201,33 +2196,13 @@ write.csv(
 cat("\nSaved to:", file.path(output_path, "brazil_gdp_pc_panel_log_2018_2023.csv"), "\n")
 
 # # =============================================================================
-# Build state-year poverty panel for Mexico, 2018-2023  (R replication, v2)
-#
-# v2 fix: readxl trims empty leading rows/columns when reading a sheet, which
-# shifted all hardcoded positions in Cuadro 10. This version locates the
-# header rows, state-name column, and data columns dynamically by content,
-# so it works regardless of trimming. Accent stripping now uses chartr()
-# (portable on Windows) instead of iconv //TRANSLIT.
-#
-# Sources (place both files in `dir` below):
-#   MX_AE_2022.xlsx  : CONEVAL Anexo estadistico 2016-2022 (multidimensional)
-#   MX_ITLP_2024.xlsx: CONEVAL ITLP cuadros (Feb 2025), Cuadro 10 (pobreza
-#                      laboral % by state, quarterly)
-# Output: poverty_panel_mx_2018_2023.csv  (32 states x 6 years = 192 rows)
-# =============================================================================
-# =============================================================================
-# Build state-year poverty panel for Mexico, 2018-2023  (R replication, v3)
+# Build state-year poverty panel for Mexico, 2018-2023 
 #
 # Combine two CONEVAL sources into one balanced panel (32 states x 6 years):
 #   MX_AE_2022.xlsx  : multidimensional poverty (ENIGH; 2018/2020/2022 only)
 #   MX_ITLP_2024.xlsx: pobreza laboral, quarterly ENOE series (Cuadro 10),
-#                      which I average to annual so I get all years 2018-2023
+#                      which average to annual to get all years 2018-2023
 # Output: poverty_panel_mx_2018_2023.csv
-#
-# changes: fixed the quarter-label cleanup (I now uppercase BEFORE
-# replacing L with I, so CONEVAL's lowercase 'll*' typo for 2020-Q2 is
-# parsed instead of dropped) and rewrote comments in first person.
-# Run me from a fresh session with: source("build_poverty_panel.R", echo=TRUE)
 # =============================================================================
 
 library(readxl)
@@ -2300,7 +2275,7 @@ labels_map <- c("poblacion en situacion de pobreza"          = "pobreza",
 
 # For every sheet: skip non-state sheets, find the "2016" header cell to
 # anchor the percentage block (4 columns: 2016/2018/2020/2022; labels sit one
-# column to the left), then harvest the three indicator rows.
+# column to the left), then take the three indicator rows.
 ae <- lapply(excel_sheets(ae_file), function(sh) {
   code <- to_code(sh)
   if (is.na(code)) return(NULL)
@@ -2323,7 +2298,7 @@ ae <- lapply(excel_sheets(ae_file), function(sh) {
   pivot_wider(names_from = var, values_from = val)
 
 # expect exactly 32 states x 3 measurement years; anything else means a
-# sheet parsed wrong, and I want to stop here rather than merge bad data.
+# sheet parsed wrong, and stop rather than merge bad data.
 stopifnot(nrow(ae) == 32 * 3)
 
 # ---- 2. Pobreza laboral (ITLP Cuadro 10, quarterly) --------------------------
@@ -2331,8 +2306,8 @@ stopifnot(nrow(ae) == 32 * 3)
 raw <- as.matrix(suppressMessages(
   read_excel(itlp_file, sheet = "Cuadro 10", col_names = FALSE, col_types = "text")))
 
-# anchor the table by content: the "Nacional" cell tells me which
-# column holds state names; the "2005" cell tells me the year header row
+# anchor table by content: the "Nacional" cell tell which
+# column holds state names; the "2005" cell tell the year header row
 # (quarter labels are always the row directly below it).
 nac <- find_cell(raw, "Nacional")
 stopifnot(!is.null(nac))
@@ -2429,18 +2404,9 @@ cat("\nPanel written to:", file.path(dir, "poverty_panel_mx_2018_2023.csv"), "\n
 # BUILD BRAZIL STATE-YEAR POVERTY PANEL, 2018-2023
 #
 # Source: IBGE, Sintese de Indicadores Sociais 2025 (plano tabular),
-#   Tabela 2.18 - Total e proporcao de pessoas por classes de rendimento
-#   domiciliar per capita selecionadas, segundo as Grandes Regioes, as
-#   Unidades da Federacao e as Regioes Metropolitanas das Capitais.
-#   Estimated from PNAD Continua; poverty lines follow the World Bank
-#   definitions (US$ 6.85 and US$ 2.15 per day, PPC 2017).
-#   The workbook carries one sheet per year (2012-2024) plus CV sheets.
+#   Tabela 2.18.
 #
 # Output: poverty/brazil_poverty_panel_2018_2023.csv
-#   state (accent-free, matches the rest of the Brazil pipeline),
-#   year, poverty_685 (% below US$6.85), extreme_215 (% below US$2.15)
-#
-# Run before the master merge script; it leaves br_poverty in memory.
 # =============================================================================
 
 library(readxl)
@@ -2809,10 +2775,7 @@ write_csv(br,          file.path(reg_path,  "brazil_master_panel.csv"))
 write_csv(final_panel, file.path(base_path, "final_panel_all_variables.csv"))
 
 # -----------------------------------------------------------------------------
-# VERIFICATION: list every output file this pipeline should have produced,
-# with file.exists() and size, so a missing file is immediately visible.
-# Note: table2_marginal_effects.txt and the figure1/figure2 PNGs are written
-# by section 6 and 05_figures.R respectively, but are checked here too.
+# VERIFICATION
 # -----------------------------------------------------------------------------
 expected <- c(
   file.path(reg_path, "table1_main_results.txt"),
@@ -2920,7 +2883,7 @@ ggsave(file.path(fig_path, "figure2_descriptive_trends.png"), p2,
 cat("Figures written to:", fig_path, "\n")
 
 # =============================================================================
-# FORMATTED TABLES: visually formatted version of the main results 
+# FORMATTED TABLES: main results 
 # =============================================================================
 
 if (!requireNamespace("modelsummary", quietly = TRUE)) install.packages("modelsummary")
